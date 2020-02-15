@@ -190,12 +190,12 @@ public class Calculator extends JFrame {
 	    c.gridx = 2;
 	    c.gridy = 4;
 	    // Perform the following, when pressed
-        plus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	numberButtonAction(output, exp, '+');
-            }
-        });
+	    plus.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		    numberButtonAction(output, exp, '+');
+		}
+	    });
 	    add(plus, c);
 	    
 	    JButton minus = new JButton("-");
@@ -204,12 +204,12 @@ public class Calculator extends JFrame {
 	    c.gridx = 0;
 	    c.gridy = 5;
 	    // Perform the following, when pressed
-        minus.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	numberButtonAction(output, exp, '-');
-            }
-        });
+	    minus.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		    numberButtonAction(output, exp, '-');
+		}
+	    });
 	    add(minus, c);
 	    
 	    JButton mult = new JButton("*");
@@ -218,12 +218,12 @@ public class Calculator extends JFrame {
 	    c.gridx = 1;
 	    c.gridy = 5;
 	    // Perform the following, when pressed
-        mult.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	numberButtonAction(output, exp, '*');
-            }
-        });
+	    mult.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		    numberButtonAction(output, exp, '*');
+		}
+	    });
 	    add(mult, c);
 	    
 	    JButton divide = new JButton("/");
@@ -232,12 +232,12 @@ public class Calculator extends JFrame {
 	    c.gridx = 2;
 	    c.gridy = 5;
 	    // Perform the following, when pressed
-        divide.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	numberButtonAction(output, exp, '/');
-            }
-        });
+	    divide.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		    numberButtonAction(output, exp, '/');
+		}
+	    });
 	    add(divide, c);
 	    
 	    JButton equals = new JButton("=");
@@ -248,13 +248,13 @@ public class Calculator extends JFrame {
 	    c.gridx = 0;
 	    c.gridy = 6;
 	    // Perform the following, when pressed
-        equals.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	// insert method here to perform calculation
-            	calculate(output);
-            }
-        });
+	    equals.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		    // insert method here to perform calculation
+		    calculate(output, exp);
+		}
+	    });
 	    add(equals, c);
 	    
 	    JButton clear = new JButton("C");
@@ -264,12 +264,12 @@ public class Calculator extends JFrame {
 	    c.gridx = 2;
 	    c.gridy = 6;
 	    // Perform the following, when pressed
-        clear.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	output.setText("");
-            }
-        });
+	    clear.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		    output.setText("");
+		}
+	    });
 	    add(clear, c);
 	    // FINISH ADD BUTTONS
 	}
@@ -277,27 +277,80 @@ public class Calculator extends JFrame {
 	
 	// Executes when user selects a number/decimal button
 	private void numberButtonAction(JTextField output, Stack<Character> exp, char num) {
-		String currentOutput = output.getText();
-    	output.setText(currentOutput + num);
-    	// push onto stack for later calculation
-    	exp.push(num);
+	    String currentOutput = output.getText();
+	    output.setText(currentOutput + num);
 	}
 	
 	
 	// Performs calculation
-	private void calculate(JTextField output) {
-		String input = output.getText();
-		String delims = "[+\\-*/]+";
-		String[] tokens = input.split(delims);
-		for (int i = 0; i < tokens.length; i++)
-			System.out.println(tokens[i]);
+	private void calculate(JTextField output, Stack exp) {
+	    
+	    String input = output.getText();
+	    for (int i = 0; i < input.length(); i++)
+		exp.push(input.charAt(i));
+	    
+	    StringBuilder num1Str = new StringBuilder();
+	    StringBuilder num2Str = new StringBuilder();
+	    char operator = 'N';
+	    
+	    // Get first number in operation and its operator
+	    while (!exp.empty()) {
+		char ch = (Character)exp.pop();
+		// if number, append to num1
+		if ((ch >= 48 && ch <= 57) || ch == 46)
+		    num1Str.append(ch);
+		// else, its an operator
+		else {
+		    operator = ch;
+		    break;
+		}
+	    }
+	    
+	    // Get second number in operation
+	    while (!exp.empty()) {
+		char ch = (Character)exp.pop();
+		// if number, append to num2
+		if ((ch >= 48 && ch <= 57) || ch == 46)
+		    num2Str.append(ch);
+		// else, its a syntax error
+		else {
+		    output.setText("SyntaxErr");
+		    break;
+		}
+	    }
+	    
+	    // Reverse StringBuilders to put numbers in correct order
+	    num1Str.reverse();
+	    num2Str.reverse();
+	    
+	    // Perform calculation
+	    double num1 = Double.parseDouble(num1Str.toString());
+	    double num2 = Double.parseDouble(num2Str.toString());
+	    double result = 0.0;
+	    switch (operator) {
+		case '+' : result = num1 + num2;
+			   break;
+		case '-' : result = num1 - num2;
+			   break;
+		case '*' : result = num1 * num2;
+			   break;
+		case '/' : result = num1 / num2;
+			   break;
+	    }
+	    // Print result to screen
+	    String resultStr = String.format("%f", result);
+	    output.setText(resultStr);
 	}
 
 	public static void main(String[] args) {
-		Calculator frame = new Calculator();
-		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		frame.setSize(500, 400);
-		frame.setVisible(true);
+	    Calculator frame = new Calculator();
+	    frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+	    frame.setSize(500, 400);
+	    frame.setVisible(true);
+	    StringBuilder myStr = new StringBuilder("123.456");
+	    myStr.reverse();
+	    double myNum = Double.parseDouble(myStr.toString());
+	    System.out.println(myNum);
 	}
 
 }
